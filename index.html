@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Greenloom × Maurya Global — Manufacturing Intelligence Proposal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eef4ef; --mint: #2f9e63; --mint-bright: #1f8a52; --mint-soft: #3f9b6e;
+    --mint-dim: #bfe0cd; --red: #e0394a; --amber: #c47a12;
+    --text: #152620; --body: #4d6056; --muted: #86968c; --label: #2f8f59;
+    --card: rgba(255,255,255,0.78); --card-2: rgba(238,246,241,0.88);
+    --border: rgba(40,120,80,0.16); --border-2: rgba(40,120,80,0.30);
+    --font: 'Plus Jakarta Sans','Helvetica Neue',Arial,sans-serif;
+    --dark: #0c2c1d; --darker: #030a07;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100%; height:100%; overflow:hidden; }
+  body { font-family:var(--font); background:var(--bg); display:flex; align-items:center; justify-content:center; }
+
+  body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(ellipse 60% 50% at 80% 20%, rgba(47,158,99,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 10% 80%, rgba(28,90,58,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(124,255,192,0.04) 0%, transparent 80%);
+  }
+  body::after {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background-image: linear-gradient(rgba(47,158,99,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(47,158,99,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  #slides-viewport { position:relative; z-index:1; width:100vw; height:100vh; overflow:hidden; }
+
+  .slide {
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+    opacity:0; pointer-events:none;
+    transition:opacity 0.38s ease, transform 0.38s ease;
+    transform:translateX(50px);
+  }
+  .slide.active { opacity:1; pointer-events:all; transform:translateX(0); }
+  .slide.exit-left { opacity:0; transform:translateX(-50px); transition:opacity 0.38s ease, transform 0.38s ease; }
+
+  .card {
+    width:100%; max-width:1160px;
+    background:rgba(255,255,255,0.76);
+    backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+    border:1px solid var(--border-2); border-radius:20px; overflow:hidden;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.6) inset, 0 24px 80px rgba(12,44,29,0.14), 0 4px 16px rgba(47,158,99,0.08);
+    display:flex; flex-direction:column;
+    height:calc(100vh - 40px);
+  }
+
+  /* ── Topbar ── */
+  .topbar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 32px; height:54px; flex-shrink:0;
+    border-bottom:1px solid var(--border); background:rgba(255,255,255,0.5);
+  }
+  .logo { display:flex; align-items:center; }
+  .logo img { height:32px; width:auto; display:block; }
+  .pips { display:flex; gap:5px; align-items:center; }
+  .pip { width:6px; height:6px; border-radius:50%; background:var(--mint-dim); transition:all 0.3s; cursor:default; }
+  .pip.done { background:var(--mint); opacity:0.45; }
+  .pip.active { width:20px; border-radius:3px; background:var(--mint); opacity:1; }
+  .agent-tag { font-size:10px; font-weight:700; color:var(--label); background:rgba(47,158,99,0.1); border:1px solid rgba(47,158,99,0.2); padding:3px 10px; border-radius:20px; letter-spacing:0.5px; white-space:nowrap; }
+
+  /* ── Bottombar ── */
+  .bottombar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 32px; flex-shrink:0;
+    border-top:1px solid var(--border); background:rgba(238,246,241,0.3);
+  }
+  .bottom-l { font-size:11px; color:var(--muted); display:flex; align-items:center; gap:6px; }
+  .bdot { width:3px; height:3px; border-radius:50%; background:var(--mint-dim); flex-shrink:0; }
+  .nav-btns { display:flex; align-items:center; gap:8px; }
+  .nav-btn {
+    font-family:var(--font); font-size:12px; font-weight:600;
+    padding:8px 18px; border-radius:9px; border:1px solid var(--border-2);
+    background:white; color:var(--body); cursor:pointer;
+    display:inline-flex; align-items:center; gap:6px; transition:all 0.2s;
+    white-space:nowrap;
+  }
+  .nav-btn:hover { border-color:var(--mint); color:var(--mint-bright); }
+  .nav-btn.primary { background:var(--text); color:white; border-color:var(--text); }
+  .nav-btn.primary:hover { background:var(--dark); border-color:var(--dark); color:white; }
+
+  /* ── Shared elements ── */
+  .slide-tag { display:inline-flex; align-items:center; gap:6px; font-size:10px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; margin-bottom:10px; }
+  .slide-tag .tdot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+  .slide-tag.problem { color:var(--red); } .slide-tag.problem .tdot { background:var(--red); }
+  .slide-tag.capability { color:var(--mint); } .slide-tag.capability .tdot { background:var(--mint); }
+  .slide-tag.closing { color:var(--mint); } .slide-tag.closing .tdot { background:var(--mint); }
+
+  .slide-heading { font-size:34px; font-weight:800; line-height:1.08; letter-spacing:-1px; color:var(--text); margin-bottom:8px; }
+  .slide-heading em { font-style:normal; color:var(--mint); }
+  .slide-sub { font-size:15px; color:var(--body); line-height:1.6; margin-bottom:16px; }
+  .problem-copy { margin-top:auto; }
+
+  .two-col { display:grid; grid-template-columns:1fr 1fr; flex:1; min-height:0; overflow:hidden; }
+  .col-left { padding:24px 32px; border-right:1px solid var(--border); display:flex; flex-direction:column; overflow:auto; }
+  .col-right { padding:22px; background:rgba(238,246,241,0.35); display:grid; grid-template-rows:1.25fr 1fr; gap:12px; overflow:hidden; }
+
+  /* Pain items */
+  .pain-list { display:flex; flex-direction:column; gap:7px; }
+  .pain-item { display:flex; align-items:flex-start; gap:11px; padding:10px 13px; background:rgba(224,57,74,0.04); border:1px solid rgba(224,57,74,0.12); border-radius:10px; }
+  .pain-icon { width:28px; height:28px; border-radius:7px; background:rgba(224,57,74,0.07); border:1px solid rgba(224,57,74,0.13); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:13px; }
+  .pain-text { font-size:14px; color:var(--body); line-height:1.5; padding-top:1px; }
+  .pain-text strong { color:var(--text); font-weight:600; }
+
+  /* Stat cards */
+  .stat-card { background:white; border:1px solid var(--border); border-radius:12px; padding:18px 18px; position:relative; overflow:hidden; min-height:0; }
+  .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--red),rgba(224,57,74,0.3)); }
+  .stat-num { font-size:44px; font-weight:800; color:var(--red); letter-spacing:-1.6px; line-height:.95; margin-bottom:9px; }
+  .stat-label { font-size:17px; color:var(--text); font-weight:700; line-height:1.28; max-width:360px; }
+  .stat-context { font-size:13px; color:var(--body); line-height:1.45; margin-top:10px; max-width:380px; }
+  .stat-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; min-height:0; }
+  .stat-card.sm { padding:16px; display:flex; flex-direction:column; justify-content:space-between; }
+  .stat-card.sm .stat-num { font-size:30px; margin-bottom:8px; letter-spacing:-.8px; }
+  .stat-card.sm .stat-label { font-size:14.5px; line-height:1.32; }
+  .stat-card.sm .stat-context { font-size:12px; margin-top:8px; }
+  .col-right .stat-card:not(.sm) { display:flex; flex-direction:column; justify-content:center; }
+  .stat-kicker { font-size:10px; font-weight:800; letter-spacing:1.4px; color:var(--red); text-transform:uppercase; margin-bottom:14px; }
+  .stat-foot { display:flex; align-items:center; gap:8px; margin-top:auto; padding-top:16px; font-size:11.5px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; }
+  .stat-foot::before { content:''; width:28px; height:2px; background:rgba(224,57,74,0.36); border-radius:2px; flex-shrink:0; }
+
+  /* Capability items */
+  .cap-list { display:flex; flex-direction:column; gap:7px; margin-top:auto; padding-top:4px; }
+  .cap-item { display:flex; align-items:flex-start; gap:11px; padding:11px 14px; background:rgba(47,158,99,0.04); border:1px solid var(--border); border-radius:10px; transition:border-color 0.2s, transform 0.15s; }
+  .cap-item:hover { border-color:var(--mint); transform:translateX(2px); }
+  .cap-num { width:24px; height:24px; border-radius:6px; background:var(--mint); color:white; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; flex-shrink:0; margin-top:1px; }
+  .cap-title { font-size:14.5px; font-weight:700; color:var(--text); margin-bottom:2px; }
+  .cap-desc { font-size:13px; color:var(--body); line-height:1.45; }
+
+  /* Dark terminal */
+  .term-window { background:var(--darker); border-radius:12px; overflow:hidden; border:1px solid rgba(47,158,99,0.2); flex:1; display:flex; flex-direction:column; min-height:0; }
+  .term-titlebar { background:#0c2c1d; padding:9px 14px; display:flex; align-items:center; gap:6px; border-bottom:1px solid rgba(47,158,99,0.15); flex-shrink:0; }
+  .term-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .term-title { font-size:10px; color:rgba(124,255,192,0.6); margin-left:4px; font-weight:600; }
+  .term-body { padding:12px; display:flex; flex-direction:column; gap:7px; overflow:auto; }
+  .term-row { display:flex; align-items:flex-start; gap:8px; background:rgba(47,158,99,0.08); border:1px solid rgba(47,158,99,0.2); border-radius:7px; padding:9px 11px; }
+  .term-row.warn { background:rgba(196,122,18,0.08); border-color:rgba(196,122,18,0.25); }
+  .term-row.alert-red { background:rgba(224,57,74,0.08); border-color:rgba(224,57,74,0.2); }
+  .term-icon { font-size:13px; flex-shrink:0; margin-top:1px; }
+  .term-text { font-size:12px; color:#7cffc0; line-height:1.45; }
+  .term-text strong { color:#b4ffd6; font-weight:600; }
+  .term-row.warn .term-text { color:#ffd27a; } .term-row.warn .term-text strong { color:#ffe9a0; }
+  .term-row.alert-red .term-text { color:#ff8a80; } .term-row.alert-red .term-text strong { color:#ffb3ab; }
+  .metric-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+  .metric-mini { background:rgba(255,255,255,0.04); border:1px solid rgba(47,158,99,0.15); border-radius:7px; padding:8px 10px; }
+  .metric-val { font-size:20px; font-weight:800; color:#7cffc0; line-height:1; }
+  .metric-key { font-size:10px; color:rgba(134,150,140,0.8); text-transform:uppercase; letter-spacing:0.8px; margin-top:2px; }
+
+  /* Demo slide */
+  .demo-body { flex:1; min-height:0; position:relative; }
+  .demo-body iframe { width:100%; height:100%; border:none; display:block; }
+
+  /* ── Cover slide ── */
+  .hero-grid { display:grid; grid-template-columns:1fr 330px; flex:1; min-height:0; overflow:hidden; }
+  .hero-left { padding:28px 36px 24px; display:flex; flex-direction:column; justify-content:space-between; border-right:1px solid var(--border); overflow:auto; }
+  .hero-right { padding:20px 18px; background:rgba(238,246,241,0.4); display:flex; flex-direction:column; gap:8px; overflow:auto; }
+  .eyebrow { display:inline-flex; align-items:center; gap:8px; margin-bottom:12px; }
+  .eyebrow-line { width:24px; height:2px; background:var(--mint); border-radius:1px; }
+  .eyebrow-text { font-size:11px; font-weight:600; color:var(--label); letter-spacing:1.5px; text-transform:uppercase; }
+  .hero-heading { font-size:50px; font-weight:800; line-height:1.04; letter-spacing:-1.5px; color:var(--text); margin-bottom:12px; }
+  .hero-heading em { font-style:normal; color:var(--mint); }
+  .hero-sub { font-size:15px; color:var(--body); line-height:1.6; max-width:380px; margin-bottom:20px; }
+  .meta-row { display:flex; align-items:center; flex-wrap:wrap; gap:0; }
+  .meta-block { padding-right:20px; margin-right:20px; border-right:1px solid var(--border-2); }
+  .meta-block:last-child { border-right:none; }
+  .meta-key { font-size:9px; font-weight:600; color:var(--muted); letter-spacing:1.2px; text-transform:uppercase; margin-bottom:2px; }
+  .meta-val { font-size:13.5px; font-weight:700; color:var(--text); }
+  .cta-row { display:flex; align-items:center; gap:10px; padding-top:14px; border-top:1px solid var(--border); margin-top:16px; }
+  .panel-label { font-size:10px; font-weight:600; color:var(--muted); letter-spacing:1.4px; text-transform:uppercase; margin-bottom:2px; flex-shrink:0; }
+  .agent-card { background:white; border:1px solid var(--border); border-radius:12px; padding:13px 14px; display:flex; align-items:flex-start; gap:11px; cursor:pointer; transition:border-color 0.2s, box-shadow 0.2s, transform 0.15s; position:relative; overflow:hidden; }
+  .agent-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--mint); opacity:0; transition:opacity 0.2s; border-radius:3px 0 0 3px; }
+  .agent-card:hover { border-color:var(--mint); box-shadow:0 4px 14px rgba(47,158,99,0.1); transform:translateX(2px); }
+  .agent-card:hover::before { opacity:1; }
+  .agent-num-badge { width:30px; height:30px; border-radius:7px; background:var(--bg); border:1px solid var(--border-2); display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; color:var(--mint); flex-shrink:0; }
+  .agent-card-info { flex:1; min-width:0; }
+  .agent-card-dept { font-size:10px; font-weight:600; color:var(--muted); letter-spacing:0.8px; text-transform:uppercase; margin-bottom:2px; }
+  .agent-card-name { font-size:14px; font-weight:700; color:var(--text); margin-bottom:2px; }
+  .agent-card-desc { font-size:12px; color:var(--muted); line-height:1.4; }
+  .agent-arrow { color:var(--mint-dim); font-size:15px; flex-shrink:0; margin-top:2px; transition:color 0.2s, transform 0.15s; }
+  .agent-card:hover .agent-arrow { color:var(--mint); transform:translateX(2px); }
+  .agent-divider { height:1px; background:linear-gradient(90deg,var(--mint),transparent); opacity:0.12; flex-shrink:0; }
+
+  /* ── Closing slide ── */
+  .closing-grid { display:grid; grid-template-columns:1fr 1fr; flex:1; min-height:0; overflow:hidden; }
+  .closing-left { padding:24px 32px; border-right:1px solid var(--border); display:flex; flex-direction:column; overflow:auto; }
+  .closing-right { padding:20px 22px; background:rgba(238,246,241,0.35); display:flex; flex-direction:column; gap:0; overflow:auto; }
+  .diff-item { display:flex; align-items:flex-start; gap:11px; padding:11px 14px; background:rgba(47,158,99,0.04); border:1px solid var(--border); border-radius:10px; margin-bottom:7px; }
+  .diff-check { width:22px; height:22px; border-radius:6px; background:var(--mint); color:white; display:flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; font-weight:700; margin-top:1px; }
+  .diff-text { font-size:14px; color:var(--body); line-height:1.5; }
+  .diff-text strong { color:var(--text); font-weight:600; }
+  .contact-block { margin-top:auto; padding-top:14px; border-top:1px solid var(--border); }
+  .contact-link { font-size:14px; font-weight:700; color:var(--mint); text-decoration:none; }
+  .contact-link:hover { color:var(--mint-bright); text-decoration:underline; }
+  .timeline-section-label { font-size:10px; font-weight:700; color:var(--muted); letter-spacing:1.4px; text-transform:uppercase; margin-bottom:10px; }
+  .tl-item { display:flex; gap:14px; padding-bottom:11px; padding-left:16px; border-left:2px solid var(--border-2); margin-left:5px; }
+  .tl-item:last-child { border-left:2px solid transparent; padding-bottom:0; }
+  .tl-dot-wrap { margin-left:-22px; margin-top:3px; flex-shrink:0; }
+  .tl-dot { width:10px; height:10px; border-radius:50%; }
+  .tl-month { font-size:12.5px; font-weight:700; color:var(--mint); margin-bottom:2px; }
+  .tl-desc { font-size:13px; color:var(--body); line-height:1.5; }
+
+  /* ── Animations ── */
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes slideInRight { from{opacity:0;transform:translateX(18px)} to{opacity:1;transform:translateX(0)} }
+
+  .slide.active .anim-0 { animation:fadeUp 0.45s 0.06s ease both; }
+  .slide.active .anim-1 { animation:fadeUp 0.45s 0.13s ease both; }
+  .slide.active .anim-2 { animation:fadeUp 0.45s 0.20s ease both; }
+  .slide.active .anim-3 { animation:fadeUp 0.45s 0.27s ease both; }
+  .slide.active .anim-4 { animation:fadeUp 0.45s 0.34s ease both; }
+  .slide.active .anim-5 { animation:fadeUp 0.45s 0.41s ease both; }
+  .slide.active .anim-r0 { animation:slideInRight 0.4s 0.10s ease both; }
+  .slide.active .anim-r1 { animation:slideInRight 0.4s 0.20s ease both; }
+  .slide.active .anim-r2 { animation:slideInRight 0.4s 0.30s ease both; }
+  .slide.active .anim-r3 { animation:slideInRight 0.4s 0.40s ease both; }
+</style>
+</head>
+<body>
+<div id="slides-viewport">
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 1 — COVER
+═══════════════════════════════════════════════════ -->
+<section class="slide" id="s1">
+  <div class="card">
+    <div class="topbar">
+      <div class="logo">
+        <img src="Greenloom_Icon.svg" alt="Greenloom">
+        <a href="https://greenloom.ai" target="_blank" style="margin-left:8px; font-size:px; font-weight:700; color:var(--text); text-decoration:none;">Greenloom</a>
+      </div>
+      <div class="pips">
+        <div class="pip active"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+        <div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+      </div>
+      <span class="agent-tag">Manufacturing Intelligence</span>
+    </div>
+
+    <div class="hero-grid">
+      <div class="hero-left">
+        <div>
+          <div class="eyebrow anim-0"><div class="eyebrow-line"></div><span class="eyebrow-text">Proposal · May 2026</span></div>
+          <h1 class="hero-heading anim-1">Intelligence<br/>for <em>Maurya</em><br/>Global</h1>
+          <p class="hero-sub anim-2">AI agents built specifically for your factory floors — capturing data that's currently being lost, alerting on problems before they become rejections, and giving every department an expert that never sleeps.</p>
+          <div class="meta-row anim-3">
+            <div class="meta-block"><div class="meta-key">Prepared by</div><div class="meta-val">Greenloom</div></div>
+            <div class="meta-block"><div class="meta-key">Client</div><div class="meta-val">Maurya Global</div></div>
+            <div class="meta-block"><div class="meta-key">Agents</div><div class="meta-val">3 Deployed</div></div>
+            <div class="meta-block"><div class="meta-key">Date</div><div class="meta-val">May 2026</div></div>
+          </div>
+        </div>
+        <div class="cta-row anim-4">
+          <button class="nav-btn primary" onclick="next()">Begin Presentation →</button>
+          <button class="nav-btn" onclick="goTo(7)">Skip to Closing</button>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="panel-label anim-r0">Agents in this proposal</div>
+        <div class="agent-card anim-r1" onclick="goTo(1)">
+          <div class="agent-num-badge">01</div>
+          <div class="agent-card-info">
+            <div class="agent-card-dept">Production</div>
+            <div class="agent-card-name">Production Intelligence</div>
+            <div class="agent-card-desc">Real-time machine tracking, idle alerts, tooling ID</div>
+          </div>
+          <div class="agent-arrow">›</div>
+        </div>
+        <div class="agent-divider"></div>
+        <div class="agent-card anim-r2" onclick="goTo(3)">
+          <div class="agent-num-badge">02</div>
+          <div class="agent-card-info">
+            <div class="agent-card-dept">Quality Assurance</div>
+            <div class="agent-card-name">QA Intelligence</div>
+            <div class="agent-card-desc">Cp/Cpk analysis, computer vision defect detection</div>
+          </div>
+          <div class="agent-arrow">›</div>
+        </div>
+        <div class="agent-divider"></div>
+        <div class="agent-card anim-r3" onclick="goTo(5)">
+          <div class="agent-num-badge">03</div>
+          <div class="agent-card-info">
+            <div class="agent-card-dept">Foundry</div>
+            <div class="agent-card-name">Foundry Intelligence</div>
+            <div class="agent-card-desc">Batch monitoring, composition alerts, pattern learning</div>
+          </div>
+          <div class="agent-arrow">›</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottombar">
+      <div class="bottom-l">greenloom.ai <div class="bdot"></div> Confidential <div class="bdot"></div> Maurya Global · May 2026</div>
+      <div class="nav-btns"><button class="nav-btn primary" onclick="next()">Start →</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 2 — PRODUCTION: PROBLEM
+═══════════════════════════════════════════════════ -->
+<section class="slide" id="s2">
+  <div class="card">
+    <div class="topbar">
+      <div class="logo">
+        <img src="Greenloom_Icon.svg" alt="Greenloom">
+        <a href="https://greenloom.ai" target="_blank" style="margin-left:8px; font-size:20px; font-weight:700; color:var(--text); text-decoration:none;">Greenloom</a>
+      </div>
+      <div class="pips">
+        <div class="pip done"></div><div class="pip active"></div><div class="pip"></div><div class="pip"></div>
+        <div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+      </div>
+      <span class="agent-tag">Agent 01 · Production</span>
+    </div>
+    <div class="two-col">
+      <div class="col-left">
+        <div class="slide-tag problem anim-0"><div class="tdot"></div>The Problem</div>
+        <h2 class="slide-heading anim-1">Production runs<br/>on <em>paper</em> and<br/>memory today</h2>
+        <div class="problem-copy">
+          <p class="slide-sub anim-2">Machine utilisation is not measured. Tooling identification relies on worker knowledge. There is no alert when a machine goes idle or when production parameters deviate from standard.</p>
+          <div class="pain-list anim-3">
+            <div class="pain-item"><div class="pain-icon">📋</div><div class="pain-text"><strong>Paper-based tracking</strong> — production orders tracked in hard copy, no live visibility for management or supervisors</div></div>
+            <div class="pain-item"><div class="pain-icon">⏱</div><div class="pain-text"><strong>No idle detection</strong> — machines sit idle for hours with no alert raised; utilisation rates are unknown</div></div>
+            <div class="pain-item"><div class="pain-icon">🔧</div><div class="pain-text"><strong>Tooling by memory</strong> — wrong tool on a precision part is discovered only after the damage is done</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-right">
+        <div class="stat-card anim-r0">
+          <div class="stat-kicker">Current visibility</div>
+          <div class="stat-num">0%</div>
+          <div class="stat-label">of machine utilisation is measured digitally</div>
+          <div class="stat-context">All tracking done manually on paper at end of shift</div>
+          <div class="stat-foot">No live production signal</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-card sm anim-r1">
+            <div class="stat-kicker">Alerting</div>
+            <div class="stat-num">None</div>
+            <div class="stat-label">Real-time alerts</div>
+            <div class="stat-context">Machine idle → no notification sent</div>
+          </div>
+          <div class="stat-card sm anim-r2">
+            <div class="stat-kicker">Tracking</div>
+            <div class="stat-num">∅</div>
+            <div class="stat-label">Live order tracking</div>
+            <div class="stat-context">Status lives in supervisor's head</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bottombar">
+      <div class="bottom-l">greenloom.ai <div class="bdot"></div> Slide 2 of 8</div>
+      <div class="nav-btns"><button class="nav-btn" onclick="prev()">← Back</button><button class="nav-btn primary" onclick="next()">See it Live →</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 3 — PRODUCTION: LIVE DEMO
+═══════════════════════════════════════════════════ -->
+<section class="slide" id="s4">
+  <div class="card">
+    <div class="topbar">
+      <div class="logo">
+        <img src="Greenloom_Icon.svg" alt="Greenloom">
+        <a href="https://greenloom.ai" target="_blank" style="margin-left:8px; font-size:20px; font-weight:700; color:var(--text); text-decoration:none;">Greenloom</a>
+      </div>
+      <div class="pips">
+        <div class="pip done"></div><div class="pip done"></div><div class="pip active"></div><div class="pip"></div>
+        <div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+      </div>
+      <span class="agent-tag">Agent 01 · Production · Live Demo</span>
+    </div>
+    <div class="demo-body">
+      <iframe src="Production Intelligence Agent Light (standalone).html" title="Production Intelligence Agent Demo"></iframe>
+    </div>
+    <div class="bottombar">
+      <div class="bottom-l">greenloom.ai <div class="bdot"></div> Slide 3 of 8 <div class="bdot"></div> Live Demo</div>
+      <div class="nav-btns"><button class="nav-btn" onclick="prev()">← Back</button><button class="nav-btn primary" onclick="next()">Next: QA Agent →</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 5 — QA: PROBLEM
+═══════════════════════════════════════════════════ -->
+<section class="slide" id="s5">
+  <div class="card">
+    <div class="topbar">
+      <div class="logo">
+        <img src="Greenloom_Icon.svg" alt="Greenloom">
+        <a href="https://greenloom.ai" target="_blank" style="margin-left:8px; font-size:20px; font-weight:700; color:var(--text); text-decoration:none;">Greenloom</a>
+      </div>
+      <div class="pips">
+        <div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip active"></div>
+        <div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+      </div>
+      <span class="agent-tag">Agent 02 · Quality Assurance</span>
+    </div>
+    <div class="two-col">
+      <div class="col-left">
+        <div class="slide-tag problem anim-0"><div class="tdot"></div>The Problem</div>
+        <h2 class="slide-heading anim-1">QA runs<br/><em>entirely</em><br/>on paper</h2>
+        <div class="problem-copy">
+          <p class="slide-sub anim-2">Every measurement is written by hand. Rejection counts are tracked informally. There is no way to calculate process capability, spot a worsening trend, or verify a part against its drawing before production begins.</p>
+          <div class="pain-list anim-3">
+            <div class="pain-item"><div class="pain-icon">📄</div><div class="pain-text"><strong>Measurement data on paper</strong> — dimensional readings written in sheets that cannot be compared, searched, or analysed</div></div>
+            <div class="pain-item"><div class="pain-icon">❌</div><div class="pain-text"><strong>No rejection tracking</strong> — rejected parts logged informally with no batch, shift, or reason recorded consistently</div></div>
+            <div class="pain-item"><div class="pain-icon">👁</div><div class="pain-text"><strong>Visual inspection by eye</strong> — inspector on the 200th part of a shift will miss cracks a camera would catch every time</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-right">
+        <div class="stat-card anim-r0">
+          <div class="stat-kicker">Data capture</div>
+          <div class="stat-num">100%</div>
+          <div class="stat-label">of QA measurement data recorded on paper</div>
+          <div class="stat-context">No digital record survives past end of shift</div>
+          <div class="stat-foot">No trend line, no history</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-card sm anim-r1">
+            <div class="stat-kicker">Capability</div>
+            <div class="stat-num">0</div>
+            <div class="stat-label">Cp/Cpk analysis</div>
+            <div class="stat-context">Process capability never calculated</div>
+          </div>
+          <div class="stat-card sm anim-r2">
+            <div class="stat-kicker">Gate check</div>
+            <div class="stat-num">None</div>
+            <div class="stat-label">Pre-production checks</div>
+            <div class="stat-context">No material verification before a run</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bottombar">
+      <div class="bottom-l">greenloom.ai <div class="bdot"></div> Slide 4 of 8</div>
+      <div class="nav-btns"><button class="nav-btn" onclick="prev()">← Back</button><button class="nav-btn primary" onclick="next()">See it Live →</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 5 — QA: LIVE DEMO
+═══════════════════════════════════════════════════ -->
+<section class="slide" id="s7">
+  <div class="card">
+    <div class="topbar">
+      <div class="logo">
+        <img src="Greenloom_Icon.svg" alt="Greenloom">
+        <a href="https://greenloom.ai" target="_blank" style="margin-left:8px; font-size:20px; font-weight:700; color:var(--text); text-decoration:none;">Greenloom</a>
+      </div>
+      <div class="pips">
+        <div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div>
+        <div class="pip active"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+      </div>
+      <span class="agent-tag">Agent 02 · QA · Live Demo</span>
+    </div>
+    <div class="demo-body">
+      <iframe src="QA Intelligence Agent (standalone).html" title="QA Intelligence Agent Demo"></iframe>
+    </div>
+    <div class="bottombar">
+      <div class="bottom-l">greenloom.ai <div class="bdot"></div> Slide 5 of 8 <div class="bdot"></div> Live Demo</div>
+      <div class="nav-btns"><button class="nav-btn" onclick="prev()">← Back</button><button class="nav-btn primary" onclick="next()">Next: Foundry Agent →</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 8 — FOUNDRY: PROBLEM
+═══════════════════════════════════════════════════ -->
+<section class="slide" id="s8">
+  <div class="card">
+    <div class="topbar">
+      <div class="logo">
+        <img src="Greenloom_Icon.svg" alt="Greenloom">
+        <a href="https://greenloom.ai" target="_blank" style="margin-left:8px; font-size:20px; font-weight:700; color:var(--text); text-decoration:none;">Greenloom</a>
+      </div>
+      <div class="pips">
+        <div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div>
+        <div class="pip done"></div><div class="pip active"></div><div class="pip"></div><div class="pip"></div>
+      </div>
+      <span class="agent-tag">Agent 03 · Foundry</span>
+    </div>
+    <div class="two-col">
+      <div class="col-left">
+        <div class="slide-tag problem anim-0"><div class="tdot"></div>The Problem</div>
+        <h2 class="slide-heading anim-1">A bad pour wastes<br/>an entire <em>heat</em><br/>of 1,200 kg</h2>
+        <div class="problem-copy">
+          <p class="slide-sub anim-2">With four furnaces each processing 1,200 kg per heat, the margin for error is extremely narrow. A wrong chemical composition or out-of-range pouring temperature is not caught until after the metal is in the mould.</p>
+          <div class="pain-list anim-3">
+            <div class="pain-item"><div class="pain-icon">🌡</div><div class="pain-text"><strong>No real-time composition alerts</strong> — spectro results are checked, but deviations are not flagged until after the pour proceeds</div></div>
+            <div class="pain-item"><div class="pain-icon">🏖</div><div class="pain-text"><strong>Sand property inconsistency</strong> — readings taken manually and inconsistently, no pattern tracking across shifts</div></div>
+            <div class="pain-item"><div class="pain-icon">📊</div><div class="pain-text"><strong>No batch traceability</strong> — when QA rejects a casting, there is no structured way to trace it back to the foundry conditions that produced it</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-right">
+        <div class="stat-card anim-r0">
+          <div class="stat-kicker">Batch risk</div>
+          <div class="stat-num">1,200<span style="font-size:16px;font-weight:600;letter-spacing:0"> kg</span></div>
+          <div class="stat-label">wasted per heat when chemical composition is wrong</div>
+          <div class="stat-context">4 furnaces — one bad batch cascades across the full pour cycle</div>
+          <div class="stat-foot">High-cost error surface</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-card sm anim-r1">
+            <div class="stat-kicker">Prevention</div>
+            <div class="stat-num">None</div>
+            <div class="stat-label">Pre-pour alerts</div>
+            <div class="stat-context">Deviation caught after, not before</div>
+          </div>
+          <div class="stat-card sm anim-r2">
+            <div class="stat-kicker">Root cause</div>
+            <div class="stat-num">∅</div>
+            <div class="stat-label">Batch traceability</div>
+            <div class="stat-context">Rejection ↔ foundry cause: unknown</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bottombar">
+      <div class="bottom-l">greenloom.ai <div class="bdot"></div> Slide 6 of 8</div>
+      <div class="nav-btns"><button class="nav-btn" onclick="prev()">← Back</button><button class="nav-btn primary" onclick="next()">See it Live →</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 7 — FOUNDRY: LIVE DEMO
+═══════════════════════════════════════════════════ -->
+<section class="slide" id="s10">
+  <div class="card">
+    <div class="topbar">
+      <div class="logo">
+        <img src="Greenloom_Icon.svg" alt="Greenloom">
+        <a href="https://greenloom.ai" target="_blank" style="margin-left:8px; font-size:20px; font-weight:700; color:var(--text); text-decoration:none;">Greenloom</a>
+      </div>
+      <div class="pips">
+        <div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div>
+        <div class="pip done"></div><div class="pip done"></div><div class="pip active"></div><div class="pip"></div>
+      </div>
+      <span class="agent-tag">Agent 03 · Foundry · Live Demo</span>
+    </div>
+    <div class="demo-body">
+      <iframe src="Foundry Intelligence Agent Light (standalone).html" title="Foundry Intelligence Agent Demo"></iframe>
+    </div>
+    <div class="bottombar">
+      <div class="bottom-l">greenloom.ai <div class="bdot"></div> Slide 7 of 8 <div class="bdot"></div> Live Demo</div>
+      <div class="nav-btns"><button class="nav-btn" onclick="prev()">← Back</button><button class="nav-btn primary" onclick="next()">Closing →</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 11 — CLOSING
+═══════════════════════════════════════════════════ -->
+<section class="slide" id="s11">
+  <div class="card">
+    <div class="topbar">
+      <div class="logo">
+        <img src="Greenloom_Icon.svg" alt="Greenloom">
+        <a href="https://greenloom.ai" target="_blank" style="margin-left:8px; font-size:20px; font-weight:700; color:var(--text); text-decoration:none;">Greenloom</a>
+      </div>
+      <div class="pips">
+        <div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div>
+        <div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip active"></div>
+      </div>
+      <span class="agent-tag">Why Greenloom</span>
+    </div>
+    <div class="closing-grid">
+      <div class="closing-left">
+        <div class="slide-tag closing anim-0"><div class="tdot"></div>The Difference</div>
+        <h2 class="slide-heading anim-1">Not a generic<br/>ERP. Built for<br/><em>Maurya Global.</em></h2>
+        <p class="slide-sub anim-2">Every manufacturing software vendor will offer you a system that works for the average factory. Greenloom does not sell averages. The intelligence is configured around your specific processes, your alloys, your rejection patterns.</p>
+        <div class="diff-item anim-3"><div class="diff-check">✓</div><div class="diff-text"><strong>Configured for your factory</strong> — your four furnaces, your alloys, your part drawings, your rejection patterns</div></div>
+        <div class="diff-item anim-4"><div class="diff-check">✓</div><div class="diff-text"><strong>Intelligence that compounds</strong> — Month 1: captures lost data. Month 3: surfaces patterns. Month 6: actively reducing rejections</div></div>
+        <div class="diff-item anim-5"><div class="diff-check">✓</div><div class="diff-text"><strong>One dashboard for everything</strong> — Foundry, QA, Production live on one screen without walking the factory floor</div></div>
+        <div class="contact-block anim-5">
+          <div class="meta-key" style="margin-bottom:5px;font-size:9px;font-weight:700;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;">Ready to begin</div>
+          <a class="contact-link" href="https://greenloom.ai">greenloom.ai</a>
+        </div>
+      </div>
+      <div class="closing-right">
+        <div class="timeline-section-label">Deployment Timeline</div>
+        <div class="tl-item anim-r0">
+          <div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--mint)"></div></div>
+          <div><div class="tl-month">Month 1</div><div class="tl-desc">Production + QA agents deployed. Data capture begins. Rejection tracking goes digital for the first time.</div></div>
+        </div>
+        <div class="tl-item anim-r1">
+          <div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--mint)"></div></div>
+          <div><div class="tl-month">Month 2</div><div class="tl-desc">Foundry agent live. Camera-based visual inspection operational at QA station. Per-heat logs accumulating.</div></div>
+        </div>
+        <div class="tl-item anim-r2">
+          <div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--mint-soft)"></div></div>
+          <div><div class="tl-month">Month 3</div><div class="tl-desc">Pattern learning surfaces first insights. Rejection rate trends visible across departments. Unified dashboard live.</div></div>
+        </div>
+        <div class="tl-item anim-r3" style="border-left-color:transparent!important">
+          <div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--bg);border:2px solid var(--mint)"></div></div>
+          <div><div class="tl-month" style="color:var(--muted)">Month 6+</div><div class="tl-desc">The system knows Maurya Global's factory better than any off-the-shelf tool ever could. Intelligence compounding every batch.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="bottombar">
+      <div class="bottom-l">greenloom.ai <div class="bdot"></div> Confidential <div class="bdot"></div> Maurya Global · May 2026</div>
+      <div class="nav-btns"><button class="nav-btn" onclick="prev()">← Back</button><button class="nav-btn primary" onclick="goTo(0)">↩ Back to Start</button></div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /slides-viewport -->
+
+<script>
+  let current = 0;
+  const total = 8;
+
+  function goTo(n) {
+    if (n < 0 || n >= total) return;
+    const slides = document.querySelectorAll('.slide');
+
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit-left');
+    const exitSlide = slides[current];
+    setTimeout(() => exitSlide.classList.remove('exit-left'), 420);
+
+    current = n;
+    slides[current].classList.add('active');
+    updatePips();
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  function updatePips() {
+    document.querySelectorAll('.slide').forEach((slide, si) => {
+      slide.querySelectorAll('.pip').forEach((pip, pi) => {
+        pip.classList.remove('active','done');
+        if (pi < current) pip.classList.add('done');
+        else if (pi === current) pip.classList.add('active');
+      });
+    });
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); prev(); }
+  });
+
+  // Init
+  document.querySelectorAll('.slide')[0].classList.add('active');
+</script>
+</body>
+</html>
