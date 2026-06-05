@@ -213,6 +213,62 @@
   @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
   @keyframes slideInRight { from{opacity:0;transform:translateX(18px)} to{opacity:1;transform:translateX(0)} }
 
+  /* ── Mobile responsive ── */
+  @media (max-width: 768px) {
+    .slide { padding: 10px; }
+
+    .card { border-radius: 14px; height: calc(100vh - 20px); }
+
+    /* Topbar */
+    .topbar { padding: 0 14px; height: 46px; }
+    .logo img { height: 22px; }
+    .agent-tag { display: none; }
+    .pips { gap: 4px; }
+    .pip { width: 5px; height: 5px; }
+    .pip.active { width: 14px; }
+
+    /* Bottombar */
+    .bottombar { padding: 9px 14px; }
+    .bottom-l { display: none; }
+    .nav-btns { width: 100%; justify-content: space-between; gap: 6px; }
+    .nav-btn { flex: 1; justify-content: center; padding: 8px 10px; font-size: 11px; }
+
+    /* Cover slide */
+    .hero-grid { grid-template-columns: 1fr; overflow-y: auto; }
+    .hero-left { padding: 18px 16px 14px; border-right: none; border-bottom: 1px solid var(--border); }
+    .hero-right { padding: 14px 16px; }
+    .hero-heading { font-size: 30px; letter-spacing: -0.8px; }
+    .hero-sub { font-size: 13px; margin-bottom: 14px; }
+    .meta-row { gap: 6px 0; flex-wrap: wrap; }
+    .meta-block { padding-right: 14px; margin-right: 14px; }
+
+    /* Problem / capability slides */
+    .two-col { grid-template-columns: 1fr; overflow-y: auto; }
+    .col-left { padding: 16px; border-right: none; border-bottom: 1px solid var(--border); overflow: visible; }
+    .col-right { display: flex; flex-direction: column; grid-template-rows: unset; padding: 14px 16px; overflow: visible; gap: 10px; }
+    .slide-heading { font-size: 22px; letter-spacing: -0.4px; }
+    .slide-sub { font-size: 13px; margin-bottom: 10px; }
+
+    /* Stat cards */
+    .stat-num { font-size: 32px; letter-spacing: -1px; }
+    .stat-label { font-size: 14px; }
+    .stat-context { font-size: 12px; margin-top: 6px; }
+    .stat-row { grid-template-columns: 1fr 1fr; }
+    .stat-card.sm .stat-num { font-size: 24px; }
+    .stat-card.sm .stat-label { font-size: 13px; }
+
+    /* Terminal mockup */
+    .term-window { min-height: 160px; }
+
+    /* Closing slide */
+    .closing-grid { grid-template-columns: 1fr; overflow-y: auto; }
+    .closing-left { padding: 16px; border-right: none; border-bottom: 1px solid var(--border); }
+    .closing-right { padding: 14px 16px; }
+
+    /* Demo slides — let iframe fill */
+    .demo-body { min-height: 60vh; }
+  }
+
   .slide.active .anim-0 { animation:fadeUp 0.45s 0.06s ease both; }
   .slide.active .anim-1 { animation:fadeUp 0.45s 0.13s ease both; }
   .slide.active .anim-2 { animation:fadeUp 0.45s 0.20s ease both; }
@@ -656,6 +712,18 @@
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); next(); }
     if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); prev(); }
   });
+
+  // Touch swipe navigation
+  let _tx = 0, _ty = 0;
+  const vp = document.getElementById('slides-viewport');
+  vp.addEventListener('touchstart', e => { _tx = e.touches[0].clientX; _ty = e.touches[0].clientY; }, { passive: true });
+  vp.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - _tx;
+    const dy = e.changedTouches[0].clientY - _ty;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 44) {
+      dx < 0 ? next() : prev();
+    }
+  }, { passive: true });
 
   // Init
   document.querySelectorAll('.slide')[0].classList.add('active');
